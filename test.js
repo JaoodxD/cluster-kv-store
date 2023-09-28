@@ -91,4 +91,84 @@ const test6 = async () => {
 };
 tests.push(test6);
 
+const test7 = async () => {
+  console.log('perf test x1_000_000 with Map storage type');
+
+  const storage = KvStorage({ type: 'map', TTL: 0 });
+  console.time('Map perf')
+  console.time('Map insert perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = { hello: 'world' };
+    storage.set(`CRM#${i}`, object);
+  }
+  console.timeEnd('Map insert perf');
+  console.time('Map retrieve perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = storage.get(`CRM#${i}`);
+  }
+  console.timeEnd('Map retrieve perf');
+  console.timeEnd('Map perf');
+};
+tests.push(test7);
+
+const test8 = async () => {
+  console.log('perf test x1_000_000 with object storage type');
+
+  const storage = KvStorage({ type: 'object', TTL: 0 });
+  console.time('object perf')
+  console.time('object insert perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = { hello: 'world' };
+    storage.set(`CRM#${i}`, object);
+  }
+  console.timeEnd('object insert perf');
+  console.time('object retrieve perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = storage.get(`CRM#${i}`);
+  }
+  console.timeEnd('object retrieve perf');
+  console.timeEnd('object perf');
+};
+tests.push(test8);
+
+const test9 = async () => {
+  console.log('perf test x1_000_000 with Map storage type, big pool');
+
+  const storage = KvStorage({ type: 'map', TTL: 0, norm: 1000000 });
+  console.time('Map perf')
+  console.time('Map insert perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = { hello: 'world' };
+    storage.set(`CRM#${i}`, object);
+  }
+  console.timeEnd('Map insert perf');
+  console.time('Map retrieve perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = storage.get(`CRM#${i}`);
+  }
+  console.timeEnd('Map retrieve perf');
+  console.timeEnd('Map perf');
+};
+tests.push(test9);
+
+const test10 = async () => {
+  console.log('perf test x1_000_000 with object storage type, big pool');
+
+  const storage = KvStorage({ type: 'object', TTL: 0, norm: 1000000 });
+  console.time('object perf')
+  console.time('object insert perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = { hello: 'world' };
+    storage.set(`CRM#${i}`, object);
+  }
+  console.timeEnd('object insert perf');
+  console.time('object retrieve perf');
+  for (let i = 0; i < 1000000; i++) {
+    const object = storage.get(`CRM#${i}`);
+  }
+  console.timeEnd('object retrieve perf');
+  console.timeEnd('object perf');
+};
+tests.push(test10);
+
 chainExec(tests);
