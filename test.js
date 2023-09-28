@@ -14,7 +14,7 @@ const KvStorage = require('./lib/KvStorage.js');
 const test1 = () => {
   console.log('primitive test');
 
-  const storage = KvStorage('object', 0);
+  const storage = KvStorage({ type: 'object', TTL: 0 });
   const number = 1;
   storage.set('CRM', number);
   const newnumber = storage.get('CRM');
@@ -27,7 +27,7 @@ tests.push(test1);
 const test2 = () => {
   console.log('object test');
 
-  const storage = KvStorage('object', 0);
+  const storage = KvStorage({ type: 'object', TTL: 0 });
   const object = { hello: 'world' };
   storage.set('CRM', object);
   const newobject = storage.get('CRM');
@@ -40,7 +40,7 @@ tests.push(test2);
 const test3 = async () => {
   console.log('test object with TTL');
 
-  const storage = KvStorage('object', 1000);
+  const storage = KvStorage({ type: 'object', TTL: 1000 });
   const object = { hello: 'world' };
   storage.set('CRM', object);
   await wait(800);
@@ -54,14 +54,14 @@ tests.push(test3);
 const test4 = async () => {
   console.log('test object with expired TTL');
 
-  const storage = KvStorage('object', 1000);
+  const storage = KvStorage({ type: 'object', TTL: 1000 });
   const object = { hello: 'world' };
   storage.set('CRM', object);
   await wait(1000);
   const newobject = storage.get('CRM');
 
   console.log(object, newobject);
-  console.log(object === newobject);
+  console.log(object !== newobject);
 };
 tests.push(test4);
 
@@ -69,11 +69,11 @@ const test5 = async () => {
   console.log('test with invalid storage type');
 
   try {
-    const storage = KvStorage('invalid storage', 1000);
+    const storage = KvStorage({ type: 'invalid storage', TTL: 1000 });
     console.error('test failed');
   } catch (err) {
     console.log(err.message);
-    console.log('test passed');
+    console.log(true);
   }
 };
 tests.push(test5);
@@ -81,7 +81,7 @@ tests.push(test5);
 const test6 = async () => {
   console.log('test with Map storage type');
 
-  const storage = KvStorage('map', 0);
+  const storage = KvStorage({ type: 'map', TTL: 0 });
   const object = { hello: 'world' };
   storage.set('CRM', object);
   const newobject = storage.get('CRM');
