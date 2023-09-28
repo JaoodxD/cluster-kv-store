@@ -4,6 +4,7 @@ const tests = [];
 const chainExec = async (arr) => {
   for (const f of arr) {
     await f();
+    console.log();
   }
 }
 const wait = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -63,5 +64,18 @@ const test4 = async () => {
   console.log(object === newobject);
 };
 tests.push(test4);
+
+const test5 = async () => {
+  console.log('test with invalid storage type');
+
+  try {
+    const storage = KvStorage('invalid storage', 1000);
+    console.error('test failed');
+  } catch (err) {
+    console.log(err.message);
+    console.log('test passed');
+  }
+};
+tests.push(test5);
 
 chainExec(tests);
