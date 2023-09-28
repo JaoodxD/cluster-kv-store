@@ -1,0 +1,20 @@
+{
+  "name": "cluster-kv-store",
+  "version": "1.0.0",
+  "description": "KV storage clustered within workers",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JaoodxD/cluster-kv-store.git"
+  },
+  "keywords": [],
+  "author": "Maksym Shenderuk <jaood96@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JaoodxD/cluster-kv-store/issues"
+  },
+  "homepage": "https://github.com/JaoodxD/cluster-kv-store#readme"
+}
