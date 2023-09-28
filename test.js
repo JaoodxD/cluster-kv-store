@@ -78,4 +78,17 @@ const test5 = async () => {
 };
 tests.push(test5);
 
+const test6 = async () => {
+  console.log('test with Map storage type');
+
+  const storage = KvStorage('map', 0);
+  const object = { hello: 'world' };
+  storage.set('CRM', object);
+  const newobject = storage.get('CRM');
+
+  console.log(object, newobject);
+  console.log(object === newobject);
+};
+tests.push(test6);
+
 chainExec(tests);
