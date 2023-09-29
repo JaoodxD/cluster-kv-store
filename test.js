@@ -174,7 +174,7 @@ const test10 = async () => {
 tests.push(test10);
 
 const test11 = async () => {
-  console.log('worker test to return args passed as workerData after successive storage creation');
+  console.log('worker test to return workerData on `info` command');
   const workerPath = join(__dirname, './lib/workerWrapper/worker.js');
   const storageFactoryPath = join(__dirname, './lib/storage/KvStorage.js');
   const storageArgs = { type: 'object', TTL: 0, norm: 1000000 };
