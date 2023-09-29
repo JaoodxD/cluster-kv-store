@@ -171,4 +171,24 @@ const test10 = async () => {
 };
 tests.push(test10);
 
+const test11 = async () => {
+  console.log('worker test to return args passed as workerData');
+  const workerPath = './lib/workerWrapper/worker.js';
+  const { Worker } = require('worker_threads');
+  const worker = new Worker(workerPath, {
+    workerData: {
+      storageFactoryPath: 'some path', storageArgs: [1, 'a']
+    }
+  });
+  await new Promise((res) => {
+    worker.postMessage('');
+    worker.on('message', (msg) => {
+      console.log({ msg });
+      worker.terminate();
+      res();
+    });
+  });
+};
+tests.push(test11);
+
 chainExec(tests);
