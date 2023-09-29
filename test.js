@@ -9,7 +9,7 @@ const chainExec = async (arr) => {
 }
 const wait = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const KvStorage = require('./lib/KvStorage.js');
+const KvStorage = require('./lib/storage/KvStorage.js');
 
 const test1 = () => {
   console.log('primitive test');
