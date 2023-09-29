@@ -183,9 +183,9 @@ const test11 = async () => {
 
   const worker = new Worker(workerPath, { workerData });
   await new Promise((res) => {
-    worker.postMessage('');
+    worker.postMessage({ taskId: 1, command: 'info' });
     worker.on('message', (msg) => {
-      console.log({ msg });
+      console.dir({ msg }, { depth: null });
       worker.terminate();
       res();
     });
