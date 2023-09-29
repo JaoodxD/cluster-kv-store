@@ -1,15 +1,17 @@
 'use strict';
 
+const { join } = require('path');
+const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+const KvStorage = require('./lib/storage/KvStorage.js');
+
+
 const tests = [];
 const chainExec = async (arr) => {
   for (const f of arr) {
     await f();
     console.log();
   }
-}
-const wait = (ms) => new Promise((res) => setTimeout(res, ms));
-
-const KvStorage = require('./lib/storage/KvStorage.js');
+};
 
 const test1 = () => {
   console.log('primitive test');
@@ -172,14 +174,14 @@ const test10 = async () => {
 tests.push(test10);
 
 const test11 = async () => {
-  console.log('worker test to return args passed as workerData');
-  const workerPath = './lib/workerWrapper/worker.js';
+  console.log('worker test to return args passed as workerData after successive storage creation');
+  const workerPath = join(__dirname, './lib/workerWrapper/worker.js');
+  const storageFactoryPath = join(__dirname, './lib/storage/KvStorage.js');
+  const storageArgs = { type: 'object', TTL: 0, norm: 1000000 };
+  const workerData = { storageFactoryPath, storageArgs };
   const { Worker } = require('worker_threads');
-  const worker = new Worker(workerPath, {
-    workerData: {
-      storageFactoryPath: 'some path', storageArgs: [1, 'a']
-    }
-  });
+
+  const worker = new Worker(workerPath, { workerData });
   await new Promise((res) => {
     worker.postMessage('');
     worker.on('message', (msg) => {
