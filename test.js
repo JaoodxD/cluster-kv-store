@@ -185,7 +185,7 @@ const test11 = async () => {
   await new Promise((res) => {
     worker.postMessage({ taskId: 1, command: 'info' });
     worker.on('message', (msg) => {
-      console.dir({ msg }, { depth: null });
+      console.dir(msg, { depth: null });
       worker.terminate();
       res();
     });
@@ -193,4 +193,19 @@ const test11 = async () => {
 };
 tests.push(test11);
 
-chainExec(tests);
+const test12 = async () => {
+  console.log('crm storage unit test');
+  const CrmStorage = require('./lib/storage/CrmStorage.js');
+  const storageArgs = { type: 'object', TTL: 1000, norm: 1000000 };
+  const storage = CrmStorage(storageArgs);
+  const task1 = { crm: 'CRM#1', command: 'set', args: ['123', 'locked'] };
+  storage.task(task1);
+  const task2 = { crm: 'CRM#1', command: 'get', args: ['123'] };
+  const res = storage.task(task2);
+  await wait(1000);
+  const res2 = storage.task(task2);
+  console.log(res2 === null);
+};
+tests.push(test12);
+
+chainExec(tests);  
