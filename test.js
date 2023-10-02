@@ -36,7 +36,7 @@ const test2 = async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
-    norm: 0,
+    norm: 1,
     factor: 1,
   });
 
@@ -56,11 +56,30 @@ const test2 = async () => {
   }
   const res = await Promise.all(promises2);
   console.timeEnd('retrieving');
-  console.log(res);
+  // console.log(res);
 
 
   storage.shutdown();
 };
 tests.push(test2);
+
+const test3 = async () => {
+  const storage = ClusteredStorage({
+    type: 'object',
+    TTL: 0,
+    norm: 0,
+    factor: 1,
+  });
+
+  await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' });
+  const res1 = await storage.hget('CRM#1', '1001');
+  console.log(res1);
+  await storage.remove('CRM#1', '1001');
+  const res2 = await storage.hget('CRM#1', '1001');
+  console.log('key removed:', res2 === null);
+
+  storage.shutdown();
+};
+tests.push(test3);
 
 chainExec(tests);  
