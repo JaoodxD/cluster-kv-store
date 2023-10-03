@@ -58,7 +58,6 @@ const test2 = async () => {
   console.timeEnd('retrieving');
   // console.log(res);
 
-
   storage.shutdown();
 };
 tests.push(test2);
@@ -81,5 +80,62 @@ const test3 = async () => {
   storage.shutdown();
 };
 tests.push(test3);
+
+const test4 = async () => {
+  const workerStorage = ClusteredStorage({
+    type: 'object',
+    TTL: 1000,
+    norm: 1,
+    factor: 1,
+  });
+  const noWorkerStorage = ClusteredStorage({
+    type: 'object',
+    TTL: 1000,
+    norm: 1,
+    factor: 0,
+  });
+
+  {
+    const promises1 = [];
+    console.time('worker insertion');
+    for (let i = 0; i < 10000; i++) {
+      const info = { locked: true, user: '__system__' };
+      promises1.push(workerStorage.hset('CRM#1', i, info));
+    }
+    await Promise.all(promises1);
+    console.timeEnd('worker insertion');
+
+    const promises2 = [];
+    console.time('worker retrieving');
+    for (let i = 0; i < 10000; i++) {
+      promises2.push(workerStorage.hget('CRM#1', i));
+    }
+    const res = await Promise.all(promises2);
+    console.timeEnd('worker retrieving');
+    // console.log(res);
+  }
+  {
+    const promises1 = [];
+    console.time('no worker insertion');
+    for (let i = 0; i < 10000; i++) {
+      const info = { locked: true, user: '__system__' };
+      promises1.push(noWorkerStorage.hset('CRM#1', i, info));
+    }
+    await Promise.all(promises1);
+    console.timeEnd('no worker insertion');
+
+    const promises2 = [];
+    console.time('no worker retrieving');
+    for (let i = 0; i < 10000; i++) {
+      promises2.push(noWorkerStorage.hget('CRM#1', i));
+    }
+    const res = await Promise.all(promises2);
+    console.timeEnd('no worker retrieving');
+    // console.log(res);
+
+  }
+  workerStorage.shutdown();
+};
+tests.push(test4);
 
 chainExec(tests);  
