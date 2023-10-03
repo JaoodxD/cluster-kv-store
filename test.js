@@ -135,6 +135,7 @@ const test4 = async () => {
 
   }
   workerStorage.shutdown();
+  noWorkerStorage.shutdown();
 };
 tests.push(test4);
 
