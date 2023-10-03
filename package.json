@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/JaoodxD/cluster-kv-store#readme",
   "dependencies": {
-    "pino": "^8.15.1"
+    "pino": "^8.15.1",
+    "web-locks": "github:JaoodxD/web-locks#performant-queue"
   }
 }
