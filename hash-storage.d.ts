@@ -1,6 +1,6 @@
 type Options = {
   type?: 'object' | 'map'
-  ttl?: number
+  TTL?: number
   norm?: number
   max?: number,
   factor?: number
