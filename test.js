@@ -56,7 +56,6 @@ const test2 = async () => {
   }
   const res = await Promise.all(promises2);
   console.timeEnd('retrieving');
-  // console.log(res);
 
   storage.shutdown();
 };
@@ -112,7 +111,6 @@ const test4 = async () => {
     }
     const res = await Promise.all(promises2);
     console.timeEnd('worker retrieving');
-    // console.log(res);
   }
   {
     const promises1 = [];
@@ -131,8 +129,6 @@ const test4 = async () => {
     }
     const res = await Promise.all(promises2);
     console.timeEnd('no worker retrieving');
-    // console.log(res);
-
   }
   workerStorage.shutdown();
   noWorkerStorage.shutdown();

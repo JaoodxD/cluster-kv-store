@@ -21,7 +21,6 @@ async function main() {
         acc[key] = value;
         return acc;
       }, {});
-    console.log(params);
     const { crm, key, value, action } = params;
     const data = await storage[action](crm, key, value);
     // const crm = 'CRM#1';
