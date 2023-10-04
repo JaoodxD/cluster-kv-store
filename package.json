@@ -1,9 +1,8 @@
 {
-  "name": "@jaood/cluster-kv-store",
+  "name": "cluster-kv-store",
   "version": "1.0.0",
-  "private": "false",
   "description": "KV storage clustered within workers",
-  "main": "kv-storage.js",
+  "main": "main.js",
   "scripts": {
     "test": "node test.js"
   },
@@ -18,5 +17,8 @@
     "url": "https://github.com/JaoodxD/cluster-kv-store/issues"
   },
   "homepage": "https://github.com/JaoodxD/cluster-kv-store#readme",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "standard": "^17.1.0"
+  }
 }
