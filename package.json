@@ -5,7 +5,8 @@
   "description": "KV storage clustered within workers",
   "main": "kv-storage.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "lint": "standard --fix"
   },
   "repository": {
     "type": "git",
