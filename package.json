@@ -1,8 +1,9 @@
 {
-  "name": "cluster-kv-store",
+  "name": "@jaood/cluster-kv-store",
   "version": "1.0.0",
+  "private": "false",
   "description": "KV storage clustered within workers",
-  "main": "main.js",
+  "main": "kv-storage.js",
   "scripts": {
     "test": "node test.js"
   },
@@ -17,8 +18,5 @@
     "url": "https://github.com/JaoodxD/cluster-kv-store/issues"
   },
   "homepage": "https://github.com/JaoodxD/cluster-kv-store#readme",
-  "dependencies": {
-    "pino": "^8.15.1",
-    "web-locks": "github:JaoodxD/web-locks#performant-queue"
-  }
+  "dependencies": {}
 }
