@@ -49,11 +49,12 @@ Default value: `0`.
 
 # Interface
 
-`hash-storage` implements 3 basic operations:
+`hash-storage` implements 4 basic operations:
 
 - `hset` to assign data to composite `(hash, key)` key;
 - `hget` to retrieve data;
-- `remove` to perform remove operation.
+- `hgetall` to retrieve all corresponding data associated with the same hash;
+- `hdel` to perform remove operation.
 
 Also it has `shutdown` method to termiate all the underlying workers.
 
@@ -63,8 +64,13 @@ In terms of TypeScript types it implements following interface:
 interface HashStorage<T> {
   hset: (hash: string, key: string, value: T) => Promise<void>;
   hget: (hash: string, key: string) => Promise<T | null>;
-  remove: (hash: string, key: string) => Promise<void>;
+  hgetall: (hash: string) => Promise<HashMap<T>>;
+  hdel: (hash: string, key: string) => Promise<void>;
   shutdown: () => void;
+}
+
+interface HashMap<T> {
+  [key: string]: T;
 }
 ```
 
