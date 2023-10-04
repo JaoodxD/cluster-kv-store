@@ -1,10 +1,12 @@
 {
-  "name": "cluster-kv-store",
+  "name": "@jaood/hash-storage",
   "version": "1.0.0",
-  "description": "KV storage clustered within workers",
-  "main": "main.js",
+  "private": "false",
+  "description": "Hash KV storage clustered within workers",
+  "main": "hash-storage.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "lint": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -17,8 +19,8 @@
     "url": "https://github.com/JaoodxD/cluster-kv-store/issues"
   },
   "homepage": "https://github.com/JaoodxD/cluster-kv-store#readme",
-  "dependencies": {
-    "pino": "^8.15.1",
-    "web-locks": "github:JaoodxD/web-locks#performant-queue"
+  "dependencies": {},
+  "devDependencies": {
+    "standard": "^17.1.0"
   }
 }
