@@ -10,7 +10,7 @@ const chainExec = async (arr) => {
   }
 }
 
-const ClusteredStorage = require('./lib/storage/clusteredStorage.js')
+const ClusteredStorage = require('.')
 
 const test1 = async () => {
   const storage = ClusteredStorage({
