@@ -11,7 +11,18 @@
     "type": "git",
     "url": "git+https://github.com/JaoodxD/cluster-kv-store.git"
   },
-  "keywords": [],
+  "keywords": [
+    "storage",
+    "key",
+    "value",
+    "key-value",
+    "KV",
+    "hash",
+    "ttl",
+    "thread",
+    "workers",
+    "in-memory"
+  ],
   "author": "Maksym Shenderuk <jaood96@gmail.com>",
   "license": "MIT",
   "bugs": {
