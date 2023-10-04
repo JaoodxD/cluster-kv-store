@@ -10,7 +10,7 @@ const DEFAULT = {
   FACTOR: 0
 }
 
-function hashStorage(opts = {}) {
+function hashStorage (opts = {}) {
   const type = opts.type || DEFAULT.TYPE
   const TTL = opts.TTL || DEFAULT.TTL
   const norm = opts.norm || DEFAULT.NORM
