@@ -1,9 +1,9 @@
 {
-  "name": "@jaood/cluster-kv-store",
+  "name": "@jaood/hash-storage",
   "version": "1.0.0",
   "private": "false",
-  "description": "KV storage clustered within workers",
-  "main": "kv-storage.js",
+  "description": "Hash KV storage clustered within workers",
+  "main": "hash-storage.js",
   "scripts": {
     "test": "node test.js",
     "lint": "standard --fix"
