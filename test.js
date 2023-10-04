@@ -71,7 +71,7 @@ const test3 = async () => {
   await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' })
   const res1 = await storage.hget('CRM#1', '1001')
   console.log(res1)
-  await storage.remove('CRM#1', '1001')
+  await storage.hdel('CRM#1', '1001')
   const res2 = await storage.hget('CRM#1', '1001')
   console.log('key removed:', res2 === null)
 
@@ -133,5 +133,23 @@ const test4 = async () => {
   noWorkerStorage.shutdown()
 }
 tests.push(test4)
+
+const test5 = async () => {
+  const storage = ClusteredStorage({
+    type: 'object',
+    TTL: 0,
+    norm: 0,
+    factor: 1
+  })
+
+  const data = { locker: true, user: '__admin__' }
+  await storage.hset('CRM#1', '1001', data)
+  await storage.hset('CRM#1', '1002', data)
+
+  const allData = await storage.hgetall('CRM#1')
+  console.dir({ allData }, { depth: null })
+  storage.shutdown()
+}
+tests.push(test5)
 
 chainExec(tests)
