@@ -1,7 +1,6 @@
 'use strict'
 
-const { join } = require('path')
-const wait = (ms) => new Promise((res) => setTimeout(res, ms))
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const tests = []
 const chainExec = async (arr) => {
@@ -54,7 +53,7 @@ const test2 = async () => {
   for (let i = 0; i < 10000; i++) {
     promises2.push(storage.hget('CRM#1', i))
   }
-  const res = await Promise.all(promises2)
+  await Promise.all(promises2)
   console.timeEnd('retrieving')
 
   storage.shutdown()
@@ -109,7 +108,7 @@ const test4 = async () => {
     for (let i = 0; i < 10000; i++) {
       promises2.push(workerStorage.hget('CRM#1', i))
     }
-    const res = await Promise.all(promises2)
+    await Promise.all(promises2)
     console.timeEnd('worker retrieving')
   }
   {
@@ -127,7 +126,7 @@ const test4 = async () => {
     for (let i = 0; i < 10000; i++) {
       promises2.push(noWorkerStorage.hget('CRM#1', i))
     }
-    const res = await Promise.all(promises2)
+    await Promise.all(promises2)
     console.timeEnd('no worker retrieving')
   }
   workerStorage.shutdown()
