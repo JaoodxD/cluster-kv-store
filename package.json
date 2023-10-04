@@ -1,8 +1,9 @@
 {
-  "name": "cluster-kv-store",
+  "name": "@jaood/cluster-kv-store",
   "version": "1.0.0",
+  "private": "false",
   "description": "KV storage clustered within workers",
-  "main": "main.js",
+  "main": "kv-storage.js",
   "scripts": {
     "test": "node test.js"
   },
