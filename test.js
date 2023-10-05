@@ -17,7 +17,7 @@ const test1 = async () => {
     type: 'object',
     TTL: 1000,
     norm: 0,
-    factor: 1
+    factor: 4
   })
 
   await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' })
