@@ -12,7 +12,7 @@ type Options = {
   TTL?: number;
   norm?: number;
   max?: number;
-  factor?: number;
+  concurrency?: number;
 };
 ```
 
@@ -40,11 +40,11 @@ Default value: `0`.
 `max` defines of max pool-size for storage units pool.  
 Default value: `Infinity`.
 
-## factor
+## concurrency
 
-`factor` defines how many shards (workers) will be created to distribute hash sub-storages.  
-For `factor: n` there will be spawned `n` worker to distribute storage computational load.  
-For `factor: 0` no workers will be spawned, so all the storage computations will be executed on the `main thread`.  
+`concurrency` defines how many shards (workers) will be created to distribute hash sub-storages.  
+For `concurrency: n` there will be spawned `n` worker to distribute storage computational load.  
+For `concurrency: 0` no workers will be spawned, so all the storage computations will be executed on the `main thread`.  
 Default value: `0`.
 
 # Interface
@@ -61,16 +61,16 @@ Also it has `shutdown` method to termiate all the underlying workers.
 In terms of TypeScript types it implements following interface:
 
 ```ts
-interface HashStorage<T> {
-  hset: (hash: string, key: string, value: T) => Promise<void>;
-  hget: (hash: string, key: string) => Promise<T | null>;
-  hgetall: (hash: string) => Promise<HashMap<T>>;
+interface HashStorage {
+  hset: (hash: string, key: string, value: unknown) => Promise<void>;
+  hget: (hash: string, key: string) => Promise<unknown>;
+  hgetall: (hash: string) => Promise<HashMap>;
   hdel: (hash: string, key: string) => Promise<void>;
   shutdown: () => void;
 }
 
-interface HashMap<T> {
-  [key: string]: T;
+interface HashMap {
+  [key: string]: unknown;
 }
 ```
 
@@ -83,7 +83,7 @@ const storage = hashStorage({
   type: "object",
   TTL: 1000,
   norm: 0,
-  factor: 1,
+  concurrency: 1,
 });
 
 const info = { item: "Water", amount: 2 };

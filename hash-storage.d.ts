@@ -3,7 +3,7 @@ type Options = {
   TTL?: number
   norm?: number
   max?: number,
-  factor?: number
+  concurrency?: number
 }
 
 interface HashMap<T> {
