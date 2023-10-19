@@ -2,7 +2,7 @@ type Options = {
   type?: 'object' | 'map'
   TTL?: number
   norm?: number
-  max?: number,
+  max?: number
   concurrency?: number
 }
 
