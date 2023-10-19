@@ -78,11 +78,11 @@ interface HashMap {
 
 ```js
 import hashStorage from "@jaood/hash-storage";
+import { setTimeout } from "node:timers/promises";
 
 const storage = hashStorage({
   type: "object",
   TTL: 1000,
-  norm: 0,
   concurrency: 1,
 });
 
@@ -92,8 +92,9 @@ await storage.hset("store#1", "1001", info);
 const res1 = await storage.hget("store#1", "1001");
 console.log(res1); // { item: 'Water', amount: 2 }
 
-setTimeout(async () => {
-  const res2 = await storage.hget("store#1", "1001");
-  console.log(res2); // null, as value has expired due to TTL setup
-}, 1000);
+await setTimeout(1000); // wait till TTL expires
+
+const res2 = await storage.hget("store#1", "1001");
+console.log(res2); // null, as value has expired due to TTL setup
+
 ```
