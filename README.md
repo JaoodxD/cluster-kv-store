@@ -8,12 +8,12 @@ In general configuration object has following structure:
 
 ```ts
 type Options = {
-  type?: "object" | "map";
-  TTL?: number;
-  norm?: number;
-  max?: number;
-  concurrency?: number;
-};
+  type?: 'object' | 'map'
+  TTL?: number
+  norm?: number
+  max?: number
+  concurrency?: number
+}
 ```
 
 And a little bit of parameters explanation.
@@ -62,39 +62,38 @@ In terms of TypeScript types it implements following interface:
 
 ```ts
 interface HashStorage {
-  hset: (hash: string, key: string, value: unknown) => Promise<void>;
-  hget: (hash: string, key: string) => Promise<unknown>;
-  hgetall: (hash: string) => Promise<HashMap>;
-  hdel: (hash: string, key: string) => Promise<void>;
-  shutdown: () => void;
+  hset: (hash: string, key: string, value: unknown) => Promise<void>
+  hget: (hash: string, key: string) => Promise<unknown>
+  hgetall: (hash: string) => Promise<HashMap>
+  hdel: (hash: string, key: string) => Promise<void>
+  shutdown: () => void
 }
 
 interface HashMap {
-  [key: string]: unknown;
+  [key: string]: unknown
 }
 ```
 
 # Example of usage
 
 ```js
-import hashStorage from "@jaood/hash-storage";
-import { setTimeout } from "node:timers/promises";
+import hashStorage from '@jaood/hash-storage'
+import { setTimeout } from 'node:timers/promises'
 
 const storage = hashStorage({
-  type: "object",
+  type: 'object',
   TTL: 1000,
-  concurrency: 1,
-});
+  concurrency: 1
+})
 
-const info = { item: "Water", amount: 2 };
+const info = { item: 'Water', amount: 2 }
 
-await storage.hset("store#1", "1001", info);
-const res1 = await storage.hget("store#1", "1001");
-console.log(res1); // { item: 'Water', amount: 2 }
+await storage.hset('store#1', '1001', info)
+const res1 = await storage.hget('store#1', '1001')
+console.log(res1) // { item: 'Water', amount: 2 }
 
-await setTimeout(1000); // wait till TTL expires
+await setTimeout(1000) // wait till TTL expires
 
-const res2 = await storage.hget("store#1", "1001");
-console.log(res2); // null, as value has expired due to TTL setup
-
+const res2 = await storage.hget('store#1', '1001')
+console.log(res2) // null, as value has expired due to TTL setup
 ```
