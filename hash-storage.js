@@ -1,6 +1,6 @@
 'use strict'
 
-const Storage = require('./lib/storage/clusteredStorage.js')
+const dispatcher = require('./lib/storage/dispatcher.js')
 
 const DEFAULT = {
   TYPE: 'object',
@@ -18,7 +18,7 @@ function hashStorage (opts = {}) {
   const factor = opts.factor || DEFAULT.FACTOR
   const config = { type, TTL, norm, max, factor }
 
-  return Storage(config)
+  return dispatcher(config)
 }
 
 module.exports = hashStorage
