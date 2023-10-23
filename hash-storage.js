@@ -1,13 +1,13 @@
 'use strict'
 
-const Storage = require('./lib/storage/clusteredStorage.js')
+const dispatcher = require('./lib/storage/dispatcher.js')
 
 const DEFAULT = {
   TYPE: 'object',
   TTL: 0,
   NORM: 0,
   MAX: Infinity,
-  FACTOR: 0
+  concurrency: 0
 }
 
 function hashStorage (opts = {}) {
@@ -15,10 +15,10 @@ function hashStorage (opts = {}) {
   const TTL = opts.TTL || DEFAULT.TTL
   const norm = opts.norm || DEFAULT.NORM
   const max = opts.max || DEFAULT.MAX
-  const factor = opts.factor || DEFAULT.FACTOR
-  const config = { type, TTL, norm, max, factor }
+  const concurrency = opts.concurrency || DEFAULT.concurrency
+  const config = { type, TTL, norm, max, concurrency }
 
-  return Storage(config)
+  return dispatcher(config)
 }
 
 module.exports = hashStorage

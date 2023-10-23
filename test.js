@@ -17,7 +17,7 @@ const test1 = async () => {
     type: 'object',
     TTL: 1000,
     norm: 0,
-    factor: 4
+    concurrency: 4
   })
 
   await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' })
@@ -36,7 +36,7 @@ const test2 = async () => {
     type: 'object',
     TTL: 1000,
     norm: 1,
-    factor: 1
+    concurrency: 1
   })
 
   const promises1 = []
@@ -65,7 +65,7 @@ const test3 = async () => {
     type: 'object',
     TTL: 0,
     norm: 0,
-    factor: 1
+    concurrency: 1
   })
 
   await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' })
@@ -84,13 +84,13 @@ const test4 = async () => {
     type: 'object',
     TTL: 1000,
     norm: 1,
-    factor: 1
+    concurrency: 1
   })
   const noWorkerStorage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
     norm: 1,
-    factor: 0
+    concurrency: 0
   })
 
   {
@@ -139,7 +139,7 @@ const test5 = async () => {
     type: 'object',
     TTL: 0,
     norm: 0,
-    factor: 1
+    concurrency: 1
   })
 
   const data = { locker: true, user: '__admin__' }
