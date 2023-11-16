@@ -5,7 +5,10 @@
   "main": "hash-storage.js",
   "scripts": {
     "test": "node test.js",
-    "lint": "standard --fix"
+    "lint": "standard --fix",
+    "bench:1": "node --expose-gc ./benchmarks/1-simple-write-read.js",
+    "bench:2": "node --expose-gc ./benchmarks/2-simple-write-delete.js",
+    "bench:3": "node --expose-gc ./benchmarks/3-random-write-read-delete.js"
   },
   "repository": {
     "type": "git",
@@ -29,7 +32,6 @@
     "url": "https://github.com/JaoodxD/cluster-kv-store/issues"
   },
   "homepage": "https://github.com/JaoodxD/cluster-kv-store#readme",
-  "dependencies": {},
   "devDependencies": {
     "p-queue": "^7.4.1",
     "standard": "^17.1.0"
