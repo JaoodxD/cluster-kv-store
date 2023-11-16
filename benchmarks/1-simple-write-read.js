@@ -7,12 +7,13 @@ const {
   getRandomInt,
   calcPercDiff,
   generateContent,
-  safeGC
+  safeGC,
+  wait
 } = require('./util.js')
 
 const limit = 20 // 23
 const hashes = 1
-const concurrency = 1
+const concurrency = 0
 
 const content = generateContent(limit, hashes)
 
@@ -26,18 +27,6 @@ console.log(
 
     const slice = content.slice(0, sz)
 
-    // generate Map based hashstorage
-    const tsGM = hrtime()
-    const map = ClusteredStorage({ concurrency, type: 'map' })
-    await Promise.all(slice.map(([hash, key, val]) => map.hset(hash, key, val)))
-    const tmGM = timeMS(tsGM)
-
-    // generate Object based hashstorage
-    const tsGO = hrtime()
-    const obj = ClusteredStorage({ concurrency, type: 'object' })
-    await Promise.all(slice.map(([hash, key, val]) => obj.hset(hash, key, val)))
-    const tmGO = timeMS(tsGO)
-
     const keys = new Array(1e5)
       .fill()
       .map((_) => [
@@ -45,20 +34,34 @@ console.log(
         ((Math.random() * sz) | 0).toString(16).padStart(8, '0')
       ])
 
+    // generate Map based hashstorage
+    const tsGM = hrtime()
+    let map = ClusteredStorage({ concurrency, type: 'map' })
+    await Promise.all(slice.map(([hash, key, val]) => map.hset(hash, key, val)))
+    const tmGM = timeMS(tsGM)
+
     // parallel search Map
     const tsSM = hrtime()
     await Promise.all(keys.map(([hash, key]) => map.hget(hash, key)))
     const tmSM = timeMS(tsSM)
+    map.shutdown()
+    map = null
+    safeGC()
+    await wait(5000)
+    // generate Object based hashstorage
+    const tsGO = hrtime()
+    let obj = ClusteredStorage({ concurrency, type: 'object' })
+    await Promise.all(slice.map(([hash, key, val]) => obj.hset(hash, key, val)))
+    const tmGO = timeMS(tsGO)
 
     // parallel search Object
     const tsSO = hrtime()
     await Promise.all(keys.map(([hash, key]) => obj.hget(hash, key)))
     const tmSO = timeMS(tsSO)
-
-    map.shutdown()
     obj.shutdown()
+    obj = null
     safeGC()
-
+    await wait(5000)
     console.log(
       pow2.toString().padStart(3, ' '),
       '|',
