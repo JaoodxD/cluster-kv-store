@@ -2,10 +2,9 @@
 
 const test = require('node:test')
 const assert = require('node:assert')
+const { setTimeout: wait } = require('node:timers/promises')
 
 const ClusteredStorage = require('.')
-
-const { setTimeout: wait } = require('node:timers/promises')
 
 test('simple init/shutdown test', async () => {
   assert.doesNotThrow(() => {
@@ -28,6 +27,7 @@ test('storage not wanishing data too early due to TTL', async () => {
   })
 
   const data = { locker: true, user: '__admin__' }
+
   await storage.hset('CRM#1', '1001', data)
   const res1 = await storage.hget('CRM#1', '1001')
 
@@ -35,10 +35,9 @@ test('storage not wanishing data too early due to TTL', async () => {
 
   await wait(500)
   const res2 = await storage.hget('CRM#1', '1001')
+  storage.shutdown()
 
   assert.deepEqual(res2, data)
-
-  storage.shutdown()
 })
 
 test('not crashing on many insert & many retrieve operations', async () => {
@@ -84,12 +83,11 @@ test('should return null after deletion', async () => {
 
   await storage.hdel('CRM#1', '1001')
   const res2 = await storage.hget('CRM#1', '1001')
+  storage.shutdown()
 
   const missingValue = null
 
   assert.equal(res2, missingValue)
-
-  storage.shutdown()
 })
 
 test('separate vs same thread perf', async () => {
@@ -110,39 +108,47 @@ test('separate vs same thread perf', async () => {
   const sameThreadTime = { insert: Infinity, retrieve: Infinity }
 
   {
-    const promises1 = []
     workerTime.insert = -process.hrtime.bigint()
+
+    const promises1 = []
     for (let i = 0; i < 10000; i++) {
       const info = { locked: true, user: '__system__' }
       promises1.push(workerStorage.hset('CRM#1', i, info))
     }
     await Promise.all(promises1)
+
     workerTime.insert += process.hrtime.bigint()
 
-    const promises2 = []
     workerTime.retrieve = -process.hrtime.bigint()
+
+    const promises2 = []
     for (let i = 0; i < 10000; i++) {
       promises2.push(workerStorage.hget('CRM#1', i))
     }
     await Promise.all(promises2)
+
     workerTime.retrieve += process.hrtime.bigint()
   }
   {
-    const promises1 = []
     sameThreadTime.insert = -process.hrtime.bigint()
+
+    const promises1 = []
     for (let i = 0; i < 10000; i++) {
       const info = { locked: true, user: '__system__' }
       promises1.push(noWorkerStorage.hset('CRM#1', i, info))
     }
     await Promise.all(promises1)
+
     sameThreadTime.insert += process.hrtime.bigint()
 
-    const promises2 = []
     sameThreadTime.retrieve = -process.hrtime.bigint()
+
+    const promises2 = []
     for (let i = 0; i < 10000; i++) {
       promises2.push(noWorkerStorage.hget('CRM#1', i))
     }
     await Promise.all(promises2)
+
     sameThreadTime.retrieve += process.hrtime.bigint()
   }
   workerStorage.shutdown()
@@ -171,8 +177,8 @@ test('retrieving all data correctess', async () => {
   await storage.hset('CRM#1', '1002', data)
 
   const allData = await storage.hgetall('CRM#1')
+  storage.shutdown()
 
   const expected = { 1001: data, 1002: data }
   assert.deepEqual(allData, expected)
-  storage.shutdown()
 })
