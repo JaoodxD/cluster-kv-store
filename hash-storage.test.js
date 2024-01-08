@@ -49,22 +49,20 @@ test('not crashing on many insert & many retrieve operations', async () => {
     concurrency: 1
   })
 
-  const promises1 = []
-  console.time('insertion')
-  for (let i = 0; i < 10000; i++) {
-    const info = { locked: true, user: '__system__' }
-    promises1.push(storage.hset('CRM#1', i, info))
-  }
-  await Promise.all(promises1)
-  console.timeEnd('insertion')
+  await assert.doesNotReject(async () => {
+    const promises1 = []
+    for (let i = 0; i < 10000; i++) {
+      const info = { locked: true, user: '__system__' }
+      promises1.push(storage.hset('CRM#1', i, info))
+    }
+    await Promise.all(promises1)
 
-  const promises2 = []
-  console.time('retrieving')
-  for (let i = 0; i < 10000; i++) {
-    promises2.push(storage.hget('CRM#1', i))
-  }
-  await Promise.all(promises2)
-  console.timeEnd('retrieving')
+    const promises2 = []
+    for (let i = 0; i < 10000; i++) {
+      promises2.push(storage.hget('CRM#1', i))
+    }
+    await Promise.all(promises2)
+  })
 
   storage.shutdown()
 })
@@ -108,44 +106,56 @@ test('separate vs same thread perf', async () => {
     concurrency: 0
   })
 
+  const workerTime = { insert: Infinity, retrieve: Infinity }
+  const sameThreadTime = { insert: Infinity, retrieve: Infinity }
+
   {
     const promises1 = []
-    console.time('worker insertion')
+    workerTime.insert = -process.hrtime.bigint()
     for (let i = 0; i < 10000; i++) {
       const info = { locked: true, user: '__system__' }
       promises1.push(workerStorage.hset('CRM#1', i, info))
     }
     await Promise.all(promises1)
-    console.timeEnd('worker insertion')
+    workerTime.insert += process.hrtime.bigint()
 
     const promises2 = []
-    console.time('worker retrieving')
+    workerTime.retrieve = -process.hrtime.bigint()
     for (let i = 0; i < 10000; i++) {
       promises2.push(workerStorage.hget('CRM#1', i))
     }
     await Promise.all(promises2)
-    console.timeEnd('worker retrieving')
+    workerTime.retrieve += process.hrtime.bigint()
   }
   {
     const promises1 = []
-    console.time('no worker insertion')
+    sameThreadTime.insert = -process.hrtime.bigint()
     for (let i = 0; i < 10000; i++) {
       const info = { locked: true, user: '__system__' }
       promises1.push(noWorkerStorage.hset('CRM#1', i, info))
     }
     await Promise.all(promises1)
-    console.timeEnd('no worker insertion')
+    sameThreadTime.insert += process.hrtime.bigint()
 
     const promises2 = []
-    console.time('no worker retrieving')
+    sameThreadTime.retrieve = -process.hrtime.bigint()
     for (let i = 0; i < 10000; i++) {
       promises2.push(noWorkerStorage.hget('CRM#1', i))
     }
     await Promise.all(promises2)
-    console.timeEnd('no worker retrieving')
+    sameThreadTime.retrieve += process.hrtime.bigint()
   }
   workerStorage.shutdown()
   noWorkerStorage.shutdown()
+
+  assert.ok(
+    workerTime.insert > sameThreadTime.insert,
+    'Somehow separate thread inserts faster'
+  )
+  assert.ok(
+    workerTime.retrieve > sameThreadTime.retrieve,
+    'Somehow separate thread retrieves faster'
+  )
 })
 
 test('retrieving all data correctess', async () => {
