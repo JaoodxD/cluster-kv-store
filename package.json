@@ -5,6 +5,7 @@
   "main": "hash-storage.js",
   "scripts": {
     "test": "standard && node --test",
+    "test:watch": "node --test --watch",
     "lint": "standard --fix"
   },
   "repository": {
