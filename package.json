@@ -4,7 +4,7 @@
   "description": "Hash KV storage clustered within workers",
   "main": "hash-storage.js",
   "scripts": {
-    "test": "node test.js",
+    "test": "standard && node --test",
     "lint": "standard --fix"
   },
   "repository": {
