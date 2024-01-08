@@ -1,18 +1,25 @@
 'use strict'
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const tests = []
-const chainExec = async (arr) => {
-  for (const f of arr) {
-    await f()
-    console.log()
-  }
-}
+const test = require('node:test')
+const assert = require('node:assert')
 
 const ClusteredStorage = require('.')
 
-const test1 = async () => {
+const { setTimeout: wait } = require('node:timers/promises')
+
+test('#0', async t => {
+  assert.doesNotThrow(() => {
+    const storage = ClusteredStorage({
+      type: 'object',
+      TTL: 1000,
+      norm: 0,
+      concurrency: 4
+    })
+    storage.shutdown()
+  })
+})
+
+test('#1', async t => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -20,18 +27,21 @@ const test1 = async () => {
     concurrency: 4
   })
 
-  await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' })
+  const data = { locker: true, user: '__admin__' }
+  await storage.hset('CRM#1', '1001', data)
   const res1 = await storage.hget('CRM#1', '1001')
-  console.log(res1)
+
+  assert.deepEqual(res1, data)
+
   await wait(983)
   const res2 = await storage.hget('CRM#1', '1001')
-  console.log(res2)
+
+  assert.deepEqual(res2, data)
 
   storage.shutdown()
-}
-tests.push(test1)
+})
 
-const test2 = async () => {
+test('#2', async t => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -57,10 +67,9 @@ const test2 = async () => {
   console.timeEnd('retrieving')
 
   storage.shutdown()
-}
-tests.push(test2)
+})
 
-const test3 = async () => {
+test('#3', async t => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 0,
@@ -68,18 +77,24 @@ const test3 = async () => {
     concurrency: 1
   })
 
-  await storage.hset('CRM#1', '1001', { locker: true, user: '__admin__' })
+  const data = { locker: true, user: '__admin__' }
+
+  await storage.hset('CRM#1', '1001', data)
   const res1 = await storage.hget('CRM#1', '1001')
-  console.log(res1)
+
+  assert.deepEqual(res1, data)
+
   await storage.hdel('CRM#1', '1001')
   const res2 = await storage.hget('CRM#1', '1001')
-  console.log('key removed:', res2 === null)
+
+  const missingValue = null
+
+  assert.equal(res2, missingValue)
 
   storage.shutdown()
-}
-tests.push(test3)
+})
 
-const test4 = async () => {
+test('#4', async t => {
   const workerStorage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -131,10 +146,9 @@ const test4 = async () => {
   }
   workerStorage.shutdown()
   noWorkerStorage.shutdown()
-}
-tests.push(test4)
+})
 
-const test5 = async () => {
+test('#5', async t => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 0,
@@ -147,9 +161,8 @@ const test5 = async () => {
   await storage.hset('CRM#1', '1002', data)
 
   const allData = await storage.hgetall('CRM#1')
-  console.dir({ allData }, { depth: null })
-  storage.shutdown()
-}
-tests.push(test5)
 
-chainExec(tests)
+  const expected = { 1001: data, 1002: data }
+  assert.deepEqual(allData, expected)
+  storage.shutdown()
+})
