@@ -7,7 +7,7 @@ const ClusteredStorage = require('.')
 
 const { setTimeout: wait } = require('node:timers/promises')
 
-test('#0', async t => {
+test('#0', async () => {
   assert.doesNotThrow(() => {
     const storage = ClusteredStorage({
       type: 'object',
@@ -19,7 +19,7 @@ test('#0', async t => {
   })
 })
 
-test('#1', async t => {
+test('#1', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -41,7 +41,7 @@ test('#1', async t => {
   storage.shutdown()
 })
 
-test('#2', async t => {
+test('#2', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -69,7 +69,7 @@ test('#2', async t => {
   storage.shutdown()
 })
 
-test('#3', async t => {
+test('#3', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 0,
@@ -94,7 +94,7 @@ test('#3', async t => {
   storage.shutdown()
 })
 
-test('#4', async t => {
+test('#4', async () => {
   const workerStorage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -148,7 +148,7 @@ test('#4', async t => {
   noWorkerStorage.shutdown()
 })
 
-test('#5', async t => {
+test('#5', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 0,
