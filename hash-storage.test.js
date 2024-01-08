@@ -7,7 +7,7 @@ const ClusteredStorage = require('.')
 
 const { setTimeout: wait } = require('node:timers/promises')
 
-test('#0', async () => {
+test('simple init/shutdown test', async () => {
   assert.doesNotThrow(() => {
     const storage = ClusteredStorage({
       type: 'object',
@@ -19,7 +19,7 @@ test('#0', async () => {
   })
 })
 
-test('#1', async () => {
+test('storage not wanishing data too early due to TTL', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -41,7 +41,7 @@ test('#1', async () => {
   storage.shutdown()
 })
 
-test('#2', async () => {
+test('not crashing on many insert & many retrieve operations', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -69,7 +69,7 @@ test('#2', async () => {
   storage.shutdown()
 })
 
-test('#3', async () => {
+test('should return null after deletion', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 0,
@@ -94,7 +94,7 @@ test('#3', async () => {
   storage.shutdown()
 })
 
-test('#4', async () => {
+test('separate vs same thread perf', async () => {
   const workerStorage = ClusteredStorage({
     type: 'object',
     TTL: 1000,
@@ -148,7 +148,7 @@ test('#4', async () => {
   noWorkerStorage.shutdown()
 })
 
-test('#5', async () => {
+test('retrieving all data correctess', async () => {
   const storage = ClusteredStorage({
     type: 'object',
     TTL: 0,
