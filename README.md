@@ -2,6 +2,30 @@
 
 `hash-storage` is `Promise`-based Key-Value storage with composite "two-level" key.
 
+# Example of usage
+
+```js
+import hashStorage from '@jaood/hash-storage'
+import { setTimeout } from 'node:timers/promises'
+
+const storage = hashStorage({
+  type: 'object',
+  TTL: 1000,
+  concurrency: 1
+})
+
+const info = { item: 'Water', amount: 2 }
+
+await storage.hset('store#1', '1001', info)
+const res1 = await storage.hget('store#1', '1001')
+console.log(res1) // { item: 'Water', amount: 2 }
+
+await setTimeout(1000) // wait till TTL expires
+
+const res2 = await storage.hget('store#1', '1001')
+console.log(res2) // null, as value has expired due to TTL setup
+```
+
 # Configuration
 
 In general configuration object has following structure:
@@ -72,28 +96,4 @@ interface HashStorage {
 interface HashMap {
   [key: string]: unknown
 }
-```
-
-# Example of usage
-
-```js
-import hashStorage from '@jaood/hash-storage'
-import { setTimeout } from 'node:timers/promises'
-
-const storage = hashStorage({
-  type: 'object',
-  TTL: 1000,
-  concurrency: 1
-})
-
-const info = { item: 'Water', amount: 2 }
-
-await storage.hset('store#1', '1001', info)
-const res1 = await storage.hget('store#1', '1001')
-console.log(res1) // { item: 'Water', amount: 2 }
-
-await setTimeout(1000) // wait till TTL expires
-
-const res2 = await storage.hget('store#1', '1001')
-console.log(res2) // null, as value has expired due to TTL setup
 ```
