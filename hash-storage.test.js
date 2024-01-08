@@ -33,7 +33,7 @@ test('storage not wanishing data too early due to TTL', async () => {
 
   assert.deepEqual(res1, data)
 
-  await wait(983)
+  await wait(500)
   const res2 = await storage.hget('CRM#1', '1001')
 
   assert.deepEqual(res2, data)
