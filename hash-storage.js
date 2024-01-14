@@ -16,7 +16,8 @@ function hashStorage (opts = {}) {
   const norm = opts.norm || DEFAULT.NORM
   const max = opts.max || DEFAULT.MAX
   const concurrency = opts.concurrency || DEFAULT.concurrency
-  const config = { type, TTL, norm, max, concurrency }
+  const vacuum = opts.vacuum || {}
+  const config = { type, TTL, norm, max, concurrency, vacuum }
 
   return dispatcher(config)
 }
