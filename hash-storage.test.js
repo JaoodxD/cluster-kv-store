@@ -183,13 +183,13 @@ test('retrieving all data correctess', async () => {
   assert.deepEqual(allData, expected)
 })
 
-test('no worker: simple time intervaled autovacuum', async () => {
+test('no worker: time interval vacuum clean TTL expired values', async () => {
   const storage = ClusteredStorage({
     type: 'object',
-    TTL: 0,
+    TTL: 100,
     concurrency: 0,
     vacuum: {
-      interval: 1000
+      interval: 500
     }
   })
 
