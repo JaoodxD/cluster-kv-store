@@ -182,3 +182,24 @@ test('retrieving all data correctess', async () => {
   const expected = { 1001: data, 1002: data }
   assert.deepEqual(allData, expected)
 })
+
+test('no worker: simple time intervaled autovacuum', async () => {
+  const storage = ClusteredStorage({
+    type: 'object',
+    TTL: 0,
+    concurrency: 0,
+    vacuum: {
+      interval: 1000
+    }
+  })
+
+  const data = { locker: true, user: '__admin__' }
+  await storage.hset('CRM#1', '1001', data)
+  await wait(1100)
+
+  const retrieved = await storage.hget('CRM#1', '1001')
+  storage.shutdown()
+
+  const expected = null
+  assert.equal(retrieved, expected)
+})
