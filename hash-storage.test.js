@@ -182,3 +182,182 @@ test('retrieving all data correctess', async () => {
   const expected = { 1001: data, 1002: data }
   assert.deepEqual(allData, expected)
 })
+
+// ---- onEvict eviction hook ----
+//
+// Note on `reason: 'capacity'`: there is no capacity (LRU/FIFO) key eviction
+// in the engines today — `max` only caps the storage-unit pool free-list, not
+// the number of live keys. The reason is reserved in the type for forward
+// compatibility, but nothing emits it yet, so there is no capacity test.
+
+function collector () {
+  const events = []
+  return {
+    events,
+    onEvict (hash, key, reason) {
+      events.push({ hash, key, reason })
+    }
+  }
+}
+
+async function waitFor (predicate, { timeout = 2000, step = 10 } = {}) {
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    if (predicate()) return true
+    await wait(step)
+  }
+  return predicate()
+}
+
+test('onEvict: fires with (hash, key, "manual") on hdel (concurrency 0)', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({ type: 'object', TTL: 0, concurrency: 0, onEvict })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  await storage.hdel('CRM#1', '1001')
+  storage.shutdown()
+
+  assert.deepEqual(events, [{ hash: 'CRM#1', key: '1001', reason: 'manual' }])
+})
+
+test('onEvict: fires exactly once per evicted key, skips missing keys', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({ type: 'object', TTL: 0, concurrency: 0, onEvict })
+
+  await storage.hset('CRM#1', 'a', 1)
+  await storage.hset('CRM#1', 'b', 2)
+  await storage.hset('CRM#1', 'c', 3)
+  await storage.hdel('CRM#1', 'a')
+  await storage.hdel('CRM#1', 'b')
+  await storage.hdel('CRM#1', 'c')
+  await storage.hdel('CRM#1', 'missing') // no-op, must not fire
+  storage.shutdown()
+
+  assert.equal(events.length, 3)
+  assert.deepEqual(events.map((e) => e.key).sort(), ['a', 'b', 'c'])
+  assert.ok(events.every((e) => e.reason === 'manual'))
+  assert.ok(events.every((e) => e.hash === 'CRM#1'))
+})
+
+test('onEvict: fires "ttl" lazily on read after expiry (concurrency 0)', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({ type: 'object', TTL: 50, concurrency: 0, onEvict })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  await wait(120)
+  const res = await storage.hget('CRM#1', '1001') // triggers lazy eviction
+  storage.shutdown()
+
+  assert.equal(res, null)
+  assert.deepEqual(events, [{ hash: 'CRM#1', key: '1001', reason: 'ttl' }])
+})
+
+test('onEvict: proactive sweep fires "ttl" without any read (concurrency 0)', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({
+    type: 'object',
+    TTL: 50,
+    sweepInterval: 30,
+    concurrency: 0,
+    onEvict
+  })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  const fired = await waitFor(() => events.length === 1)
+  storage.shutdown()
+
+  assert.ok(fired, 'sweep did not fire onEvict in time')
+  assert.deepEqual(events, [{ hash: 'CRM#1', key: '1001', reason: 'ttl' }])
+})
+
+test('onEvict: not called on normal hot-path read/write or overwrite', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({ type: 'object', TTL: 1000, concurrency: 0, onEvict })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  const res = await storage.hget('CRM#1', '1001')
+  await storage.hset('CRM#1', '1001', { a: 2 }) // overwrite is not an eviction
+  storage.shutdown()
+
+  assert.deepEqual(res, { a: 1 })
+  assert.equal(events.length, 0)
+})
+
+test('onEvict: supported by the map engine', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({ type: 'map', TTL: 50, sweepInterval: 30, concurrency: 0, onEvict })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  await storage.hset('CRM#2', '2002', { b: 2 })
+  await storage.hdel('CRM#2', '2002')
+  const swept = await waitFor(() => events.some((e) => e.reason === 'ttl'))
+  storage.shutdown()
+
+  assert.ok(swept, 'map sweep did not fire onEvict in time')
+  assert.ok(events.some((e) => e.key === '2002' && e.reason === 'manual'))
+  assert.ok(events.some((e) => e.hash === 'CRM#1' && e.key === '1001' && e.reason === 'ttl'))
+})
+
+test('onEvict: a throwing callback does not break storage (concurrency 0)', async () => {
+  const storage = ClusteredStorage({
+    type: 'object',
+    TTL: 0,
+    concurrency: 0,
+    onEvict () { throw new Error('boom') }
+  })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  await assert.doesNotReject(storage.hdel('CRM#1', '1001'))
+
+  // storage remains usable after the callback threw
+  await storage.hset('CRM#1', '1002', { b: 2 })
+  const res = await storage.hget('CRM#1', '1002')
+  storage.shutdown()
+
+  assert.deepEqual(res, { b: 2 })
+})
+
+test('onEvict: undefined callback is a no-op (no regression)', async () => {
+  const storage = ClusteredStorage({ type: 'object', TTL: 50, sweepInterval: 30, concurrency: 0 })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  await wait(120)
+  await assert.doesNotReject(storage.hdel('CRM#1', 'missing'))
+  const res = await storage.hget('CRM#1', '1001')
+  storage.shutdown()
+
+  assert.equal(res, null)
+})
+
+test('onEvict: delivered across the worker boundary (concurrency 1, manual)', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({ type: 'object', TTL: 0, concurrency: 1, onEvict })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  await storage.hdel('CRM#1', '1001')
+  const fired = await waitFor(() => events.length === 1)
+  storage.shutdown()
+
+  assert.ok(fired, 'worker did not deliver the eviction message')
+  assert.deepEqual(events, [{ hash: 'CRM#1', key: '1001', reason: 'manual' }])
+})
+
+test('onEvict: delivered across the worker boundary (concurrency 1, ttl via sweep)', async () => {
+  const { events, onEvict } = collector()
+  const storage = ClusteredStorage({
+    type: 'object',
+    TTL: 50,
+    sweepInterval: 30,
+    concurrency: 1,
+    onEvict
+  })
+
+  await storage.hset('CRM#1', '1001', { a: 1 })
+  const fired = await waitFor(() => events.length >= 1)
+  storage.shutdown()
+
+  assert.ok(fired, 'worker sweep did not deliver the eviction message')
+  assert.equal(events[0].hash, 'CRM#1')
+  assert.equal(events[0].key, '1001')
+  assert.equal(events[0].reason, 'ttl')
+})
