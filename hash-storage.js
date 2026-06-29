@@ -7,7 +7,8 @@ const DEFAULT = {
   TTL: 0,
   NORM: 0,
   MAX: Infinity,
-  concurrency: 0
+  concurrency: 0,
+  SWEEP_INTERVAL: 0
 }
 
 function hashStorage (opts = {}) {
@@ -16,7 +17,9 @@ function hashStorage (opts = {}) {
   const norm = opts.norm || DEFAULT.NORM
   const max = opts.max || DEFAULT.MAX
   const concurrency = opts.concurrency || DEFAULT.concurrency
-  const config = { type, TTL, norm, max, concurrency }
+  const sweepInterval = opts.sweepInterval || DEFAULT.SWEEP_INTERVAL
+  const onEvict = opts.onEvict
+  const config = { type, TTL, norm, max, concurrency, sweepInterval, onEvict }
 
   return dispatcher(config)
 }
